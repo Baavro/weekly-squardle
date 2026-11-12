@@ -1,0 +1,1 @@
+"""Weekly Squardle backend package."""
