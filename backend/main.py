@@ -106,6 +106,7 @@ def db():
     con = sqlite3.connect(DB_PATH, timeout=15, isolation_level=None)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout=15000")
+    con.execute("PRAGMA synchronous=NORMAL")  # per connection; safe with WAL, saves an fsync per commit
     try:
         yield con
     finally:
@@ -197,6 +198,43 @@ def generate_board(max_nodes: int = 3000, max_attempts: int = 400) -> list[str]:
             validate_board(result)
             return result
     raise RuntimeError("Could not generate a puzzle from the bundled answer list.")
+
+
+def _load_board_list() -> list[list[str]]:
+    """All possible boards, precomputed by tools/build_board_list.py (458 for the current list).
+
+    Boards are re-validated against the current answer list at startup, so editing answers.txt
+    without rebuilding the file can only remove boards, never serve an invalid one.
+    """
+    path = ROOT / "all_boards.json"
+    if not path.exists():
+        log.warning("all_boards.json missing; falling back to live board generation")
+        return []
+    boards = []
+    for rows in json.loads(path.read_text()):
+        try:
+            if all(w in ANSWER_WORDS for w in rows):
+                validate_board(rows)
+                boards.append(rows)
+        except ValueError:
+            pass
+    log.info("loaded %d precomputed boards", len(boards))
+    return boards
+
+
+ALL_BOARDS = _load_board_list()
+
+
+def pick_board(con: sqlite3.Connection) -> list[str]:
+    """Pick a random board, preferring ones this server has not dealt yet.
+
+    Instant (no search). Once every board has been used, any board may repeat.
+    """
+    if not ALL_BOARDS:
+        return generate_board()
+    used = {r[0] for r in con.execute("SELECT DISTINCT rows_json FROM generated_boards")}
+    fresh = [b for b in ALL_BOARDS if json.dumps(b) not in used]
+    return list(random.choice(fresh or ALL_BOARDS))
 
 
 def new_state():
@@ -359,18 +397,8 @@ def create_test_game(request: Request):
 @app.post("/api/game")
 def create_game(request: Request):
     _rate_limit_create(request)
-    # Each request receives a freshly generated, validated grid. Retry if a
-    # generated board was already used so New Game does not immediately repeat.
-    rows = None
-    for _ in range(8):
-        candidate = generate_board()
-        with db() as con:
-            exists = con.execute("SELECT 1 FROM generated_boards WHERE rows_json=? LIMIT 1", (json.dumps(candidate),)).fetchone()
-        if not exists:
-            rows = candidate
-            break
-    if rows is None:
-        rows = generate_board()
+    with db() as con:
+        rows = pick_board(con)
     return _create_with_rows(rows)
 
 

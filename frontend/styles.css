@@ -134,7 +134,9 @@ button, .key, .tile { touch-action: manipulation; }
   display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); gap: var(--gap);
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
 }
-.board[aria-busy="true"] { opacity: .85; }
+/* While a guess is in flight, the typed letters pulse so the press feels acknowledged instantly. */
+.board[aria-busy="true"] .tile.draft { animation: pending .5s ease-in-out infinite alternate; }
+@keyframes pending { to { box-shadow: 0 0 0 2px var(--accent) inset; transform: scale(.94); } }
 .cell {
   position: relative; container-type: size; border-radius: 9px; background: var(--cell);
   border: 1px solid var(--cell-line); overflow: hidden; padding: 3px;
@@ -202,11 +204,12 @@ button, .key, .tile { touch-action: manipulation; }
 .note.certain { background: var(--accent); color: var(--accent-ink); border-style: solid; }
 
 /* Animations */
-.tile.flip { animation: flip .5s ease both; animation-delay: var(--d, 0ms); }
+/* Result reveal: tiles are visible from the first frame (no blank board), quick staggered flip. */
+.tile.flip { animation: flip .28s ease-out backwards; animation-delay: var(--d, 0ms); }
 .tile.pop { animation: pop .12s ease-out; }
 .cell.cheer .tile.green { animation: cheer .6s ease both; animation-delay: var(--d, 0ms); }
 .cell.shake { animation: shake .42s ease; }
-@keyframes flip { 0% { transform: rotateX(90deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes flip { 0% { transform: perspective(200px) rotateX(70deg); filter: brightness(1.25); } 100% { transform: none; filter: none; } }
 @keyframes pop { 0% { transform: scale(.7); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
 @keyframes cheer { 0%, 100% { transform: none; } 40% { transform: translateY(-6px) scale(1.06); } }
 @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }

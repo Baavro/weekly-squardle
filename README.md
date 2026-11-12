@@ -33,6 +33,18 @@ Open http://localhost:8000.
 
 Rebuild both with `pip install wordfreq && python tools/build_wordlists.py <five-letter-list.txt>`. Review the licence of whichever source list you use before commercial redistribution.
 
+## Board list
+
+There are exactly **458** possible boards for the current `answers.txt` (229 pairs that are mirror images: rows and columns swapped). They are precomputed in `backend/all_boards.json`; new games pick one at random, preferring boards this server hasn't dealt yet.
+
+After changing `backend/answers.txt`, rebuild the list:
+
+```bash
+python tools/build_board_list.py                                  # ~1 min, writes backend/all_boards.json
+cc -O3 -o count_boards tools/count_boards.c && ./count_boards backend/answers.txt   # same count in <1 s
+python tools/check_boards_bruteforce.py backend/answers.txt       # slow, independent check
+```
+
 ## API
 
 - `GET /api/health`

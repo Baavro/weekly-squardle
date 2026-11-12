@@ -140,3 +140,29 @@ def test_row_and_column_always_share_an_index():
         assert not (state["row"] in state["solved_rows"] and state["col"] in state["solved_cols"])
         _apply_guess(state, word, TEST_BOARD)
     assert state["won"] and len(state["history"]) == 10
+
+
+def test_precomputed_board_list_is_complete_and_valid():
+    from backend.main import ALL_BOARDS
+    assert len(ALL_BOARDS) == 458
+    seen = set()
+    for rows in ALL_BOARDS:
+        rows_, cols = validate_board(rows)
+        assert all(w in ANSWER_WORDS for w in rows_ + cols)
+        seen.add(tuple(rows))
+    assert len(seen) == 458
+    # Every board's mirror (rows <-> columns) is also a board.
+    assert all(tuple("".join(r[i] for r in b) for i in range(5)) in seen for b in seen)
+
+
+def test_new_games_come_from_the_list_without_repeats():
+    from backend.main import ALL_BOARDS, db, pick_board, _create_with_rows
+    boards = {tuple(b) for b in ALL_BOARDS}
+    dealt = set()
+    for _ in range(30):
+        with db() as con:
+            rows = pick_board(con)
+        assert tuple(rows) in boards
+        assert tuple(rows) not in dealt
+        dealt.add(tuple(rows))
+        _create_with_rows(rows)

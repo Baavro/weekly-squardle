@@ -211,7 +211,7 @@
     }
     if (item.guess != null && S.fresh && S.fresh.id === item.guess) {
       t.classList.add('flip');
-      t.style.setProperty('--d', `${item.pos * 90}ms`);
+      t.style.setProperty('--d', `${item.pos * 40}ms`);
     }
     if (item.pop) t.classList.add('pop');
     return t;
@@ -256,7 +256,7 @@
         if (S.notesMode && S.sel && S.sel[0] === r && S.sel[1] === c) cell.classList.add('selected');
         if (S.fresh && (S.fresh.rows.includes(r) || S.fresh.cols.includes(c)) && green) {
           cell.classList.add('cheer');
-          cell.style.setProperty('--d', `${550 + (S.fresh.rows.includes(r) ? c : r) * 70}ms`);
+          cell.style.setProperty('--d', `${300 + (S.fresh.rows.includes(r) ? c : r) * 50}ms`);
         }
 
         // Two layers: `big` fills the square (green, reveal, the guess being typed, the
