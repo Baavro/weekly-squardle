@@ -270,6 +270,7 @@
           : active && inCol && S.draft[r] ? { cls: 'draft', letter: S.draft[r], pop: S.typedIdx === r } : null;
         if (green) {
           const g = clues.find((x) => x.color === 'green');
+          cell.classList.add('solved');
           if (typed) {
             // Let the player type over a solved square; keep the green letter visible in the corner.
             big.push({ ...typed, cls: 'draft on-green' });
@@ -277,6 +278,9 @@
           } else {
             big.push({ cls: 'green', letter: g.letter, guess: g.guess_id, pos: g.axis === 'down' ? r : c });
           }
+          // Keep the earlier hint chips on solved squares: they still carry row/column information.
+          const shown = dedupeCrossing(clues).filter((k) => k.color !== 'green');
+          for (let i = shown.length - 1; i >= 0; i--) chips.push(clueItem(shown[i], r, c, { tid: `${r},${c},${shown[i].id}` }));
         } else if (reveal) {
           // Game over: reveal the answer in every square that wasn't solved.
           big.push({ cls: 'reveal', letter: st.solution[r][c] });

@@ -152,6 +152,8 @@ button, .key, .tile { touch-action: manipulation; }
 .chips { align-content: start; z-index: 2; pointer-events: none; }
 .chips .tile { pointer-events: auto; }
 .cell.expanded .chips { visibility: hidden; }
+/* Hint chips sitting on a solved (green) square get a dark rim so they stay legible. */
+.cell.solved .chips .tile { box-shadow: 0 0 0 1.5px #0b3d24, 0 1px 3px #0008; }
 .tile {
   position: relative; aspect-ratio: 1; border-radius: 7px; display: grid; place-items: center;
   font-weight: 850; line-height: 1; cursor: pointer; font-size: calc(100cqw / var(--n, 1) * .5);
