@@ -1,34 +1,166 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111713"><title>Weekly Squardle</title>
-<style>
-:root{color-scheme:dark;--bg:#101511;--panel:#19211b;--panel2:#202a22;--line:#354137;--text:#f2f5ef;--muted:#9aa99c;--green:#4e9366;--yellow:#d4ae48;--red:#c65c58;--orange:#d6813d;--white:#dce2dd;--black:#414a44;--blue:#80a8d2}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#26372a 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}main{max-width:980px;margin:auto;padding:26px 18px 44px}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:17px;gap:14px}.brand{display:flex;align-items:center;gap:12px}.mark{width:38px;height:38px;border-radius:11px;background:#dbe8dc;color:#17251a;display:grid;place-items:center;font-weight:950;font-size:19px;letter-spacing:-2px}h1{margin:0;font-size:26px;letter-spacing:-1.2px}.subtitle{color:var(--muted);font-size:12px}.week{font-size:11px;letter-spacing:.1em;color:#c9d6cb;border:1px solid var(--line);border-radius:20px;padding:7px 11px;white-space:nowrap}.stats{display:flex;justify-content:center;gap:10px;margin:20px 0}.stat{background:linear-gradient(180deg,#202a22,#182019);border:1px solid var(--line);border-radius:12px;min-width:110px;text-align:center;padding:9px 16px}.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}.stat span{font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}.game{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:25px;align-items:start}.play{min-width:0}.turn{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 auto 12px;max-width:430px;color:var(--muted);font-size:12px}.turn strong{color:#d8e7da;font-weight:700}.board{width:min(100%,430px);margin:auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.cell{aspect-ratio:1;border:1px solid #39473d;background:#202a22;border-radius:9px;display:flex;align-items:center;justify-content:center;position:relative;font-size:clamp(20px,5vw,31px);font-weight:800;letter-spacing:.01em;user-select:none;overflow:hidden}.cell.green{background:var(--green);border-color:#71ad82}.cell.yellow{background:var(--yellow);color:#1e1a0e;border-color:#e5c66b}.cell.red{background:var(--red);border-color:#d77a75}.cell.orange{background:var(--orange);color:#24170e;border-color:#e6a269}.cell.white{background:var(--white);color:#202821;border-color:#f0f3f0}.cell.black{background:var(--black);color:#d7ded8;border-color:#59645c}.cell.active-row,.cell.active-col{box-shadow:inset 0 0 0 1px #e4f0e755}.cell.active-row.active-col{outline:2px solid #e2eddf;outline-offset:-3px}.cell .arrows{position:absolute;bottom:3px;right:5px;font-size:9px;line-height:1;color:currentColor;opacity:.82;font-weight:800;letter-spacing:-1px}.cell .note{position:absolute;top:3px;left:5px;color:#a8c8ef;font-size:9px}.entry{max-width:430px;margin:15px auto 0;display:flex;gap:8px}.entry input{width:100%;min-width:0;background:#1b251e;color:var(--text);border:1px solid #4b5b4d;border-radius:10px;padding:13px 15px;font-size:20px;letter-spacing:.24em;text-transform:uppercase;outline:none}.entry input:focus{border-color:#9bbca1;box-shadow:0 0 0 3px #6b987526}.entry button,.action{border:0;border-radius:10px;background:#dce9de;color:#17241a;font-weight:800;padding:0 19px;cursor:pointer}.entry button:disabled{opacity:.4;cursor:not-allowed}.message{max-width:430px;min-height:28px;margin:9px auto 0;text-align:center;color:#c3d0c5;font-size:12px}.keyboard{max-width:430px;margin:14px auto 0;display:grid;grid-template-columns:repeat(10,1fr);gap:4px}.key{min-width:0;padding:11px 0;border-radius:6px;background:#344137;color:#f0f4ef;text-align:center;font-weight:750;font-size:12px;cursor:pointer;border:1px solid #3d4c40}.key:active{transform:translateY(1px)}.key.green{background:var(--green)}.key.yellow{background:var(--yellow);color:#1d190d}.key.red{background:var(--red)}.key.orange{background:var(--orange);color:#1e140d}.key.white{background:#dce2dd;color:#202821}.key.black{background:#303833;color:#8d9990}.side{background:linear-gradient(180deg,#1d271f,#182019);border:1px solid var(--line);border-radius:14px;padding:16px}.side h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 11px}.side p{font-size:12px;color:var(--muted);margin:8px 0}.legend{display:grid;grid-template-columns:1fr 1fr;gap:9px 6px;margin:15px 0 17px}.legend-item{display:flex;align-items:center;gap:7px;color:#c3cec5;font-size:11px}.swatch{width:13px;height:13px;border-radius:4px;flex:none}.history{border-top:1px solid var(--line);padding-top:14px}.history h2{margin-bottom:8px}.history-list{max-height:210px;overflow:auto;display:grid;gap:6px}.history-item{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#c4d0c6;padding:6px 8px;background:#222d24;border-radius:7px}.history-item small{color:var(--muted);text-align:right}.controls{display:flex;gap:8px;margin:14px auto 0;max-width:430px}.action{padding:9px 12px;font-size:11px}.action.secondary{background:#273329;color:#d8e4d9;border:1px solid var(--line)}.help{font-size:10px;color:#77867a;text-align:center;margin-top:18px}.overlay{position:fixed;inset:0;background:#070b08c9;display:none;place-items:center;padding:20px;z-index:10}.overlay.show{display:grid}.modal{max-width:420px;width:100%;background:#1b261e;border:1px solid #435447;border-radius:16px;padding:23px;text-align:center;box-shadow:0 24px 90px #0009}.modal h2{margin:0 0 8px}.modal p{color:var(--muted);font-size:13px}.modal button{margin-top:10px;padding:11px 20px;border:0;border-radius:9px;background:#dce9de;color:#17241a;font-weight:800}
-@media(max-width:700px){main{padding:17px 12px 32px}.game{grid-template-columns:1fr;gap:16px}.side{order:2}.board{max-width:430px;gap:5px}.cell{border-radius:7px}.stats{gap:6px;margin:15px 0}.stat{min-width:0;flex:1;padding:8px 6px}.stat b{font-size:19px}.week{font-size:9px;padding:6px 8px}.keyboard{gap:3px}.key{padding:10px 0;font-size:11px}}
-</style></head><body><main>
-<header class="top"><div class="brand"><div class="mark">S</div><div><h1>Weekly Squardle</h1><div class="subtitle">Ten words. One tangled grid. One weekly challenge.</div></div></div><div class="week" id="week">LOADING WEEK…</div></header>
-<section class="stats"><div class="stat"><b id="guesses">—</b><span>Guesses left</span></div><div class="stat"><b id="bonus">—</b><span>Bonus guesses</span></div><div class="stat"><b id="solved">—</b><span>Words solved</span></div></section>
-<div class="game"><section class="play"><div class="turn" id="turn"><span>Loading puzzle…</span><span></span></div><div class="board" id="board" aria-label="5 by 5 puzzle board"></div>
-<form class="entry" id="form"><input id="guess" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="WORD" aria-label="Enter a five-letter word"><button id="submit" type="submit">Enter</button></form><div class="message" id="message" aria-live="polite">Starting your weekly game…</div><div class="keyboard" id="keyboard" aria-label="On-screen keyboard"></div>
-<div class="controls"><button class="action secondary" id="newGame" type="button">New game</button><button class="action secondary" id="howTo" type="button">How to play</button></div><div class="help">Your progress is saved automatically on this device.</div></section>
-<aside class="side"><h2>How to play</h2><p>Each guess fills the active horizontal row and vertical column. The crossing square is shared.</p><p>Use the colour and arrow clues to solve all five rows and all five columns. Correct squares stay green.</p><div class="legend"><div class="legend-item"><i class="swatch" style="background:var(--green)"></i>Green · exact</div><div class="legend-item"><i class="swatch" style="background:var(--yellow)"></i>Yellow · row</div><div class="legend-item"><i class="swatch" style="background:var(--red)"></i>Red · column</div><div class="legend-item"><i class="swatch" style="background:var(--orange)"></i>Orange · both</div><div class="legend-item"><i class="swatch" style="background:var(--white)"></i>White · elsewhere</div><div class="legend-item"><i class="swatch" style="background:var(--black)"></i>Black · absent</div></div><p>Arrow counts indicate how many copies of a letter occur in the relevant answer word. Duplicate letters matter.</p><div class="history"><h2>Guess history</h2><div class="history-list" id="history"><span class="subtitle">No guesses yet.</span></div></div></aside></div>
-</main><div class="overlay" id="overlay"><div class="modal"><h2 id="modalTitle">Weekly Squardle</h2><p id="modalText"></p><button id="modalClose">Continue</button></div></div>
-<script>
-const $=id=>document.getElementById(id);let gameId=null,state=null,boardId=null,notes={};const letters='QWERTYUIOPASDFGHJKLZXCVBNM';
-async function api(path,opts={}){const res=await fetch(path,{headers:{'Content-Type':'application/json'},...opts});let data={};try{data=await res.json()}catch{}if(!res.ok)throw new Error(data.detail||'Something went wrong.');return data}
-function saveId(){try{localStorage.setItem('weekly-squardle-game-'+boardId,gameId)}catch{}}
-async function init(){try{const meta=await api('/api/weekly');boardId=meta.board_id;$('week').textContent=meta.board_id;let saved=null;try{saved=localStorage.getItem('weekly-squardle-game-'+boardId)}catch{}if(saved){try{const resumed=await api('/api/game/'+saved);gameId=saved;state=resumed.state;render();return}catch{}}await startGame()}catch(e){$('message').textContent=e.message;$('submit').disabled=true}}
-async function startGame(){const data=await api('/api/game',{method:'POST',body:'{}'});gameId=data.game_id;state=data.state;saveId();render();$('message').textContent='Enter any accepted five-letter English word.';$('guess').focus()}
-function render(){if(!state)return;$('guesses').textContent=state.guesses_left;$('bonus').textContent=state.bonus_earned+' / 8';$('solved').textContent=state.words_solved+' / 10';$('turn').innerHTML=state.ended?'<strong>'+ (state.won?'Puzzle complete':'Game over') +'</strong>':`Next guess: <strong>row ${state.row+1}</strong> × <strong>column ${state.col+1}</strong>`;
-const board=$('board');board.innerHTML='';for(let r=0;r<5;r++)for(let c=0;c<5;c++){const clue=state.cells[r][c],d=document.createElement('div');d.className='cell'+(clue?' '+clue.color:'')+(!state.ended&&r===state.row?' active-row':'')+(!state.ended&&c===state.col?' active-col':'');if(clue){d.textContent=clue.letter;const a=document.createElement('span');a.className='arrows';a.textContent=(clue.row_arrows>0?'↔'.repeat(Math.min(clue.row_arrows,3)):'')+(clue.col_arrows>0?'↕'.repeat(Math.min(clue.col_arrows,3)):'');d.appendChild(a)}else if(notes[r+','+c]){d.textContent=notes[r+','+c];d.style.color='var(--blue)'}board.appendChild(d)}
-$('history').innerHTML=state.history.length?state.history.map(h=>`<div class="history-item"><b>${h.word}</b><small>${h.solved.length? h.solved.length+' solved':'clues added'}${h.bonus_awarded?' · +'+h.bonus_awarded+' bonus':''}</small></div>`).join(''):'<span class="subtitle">No guesses yet.</span>';
-$('submit').disabled=state.ended;$('guess').disabled=state.ended;if(state.ended){$('message').textContent=state.won?'You solved all ten words. Excellent work!':'No guesses remaining. The weekly challenge is over.';showModal(state.won?'Puzzle solved!':'Game over',state.won?'All ten interlocking words are complete.':'Better luck next week — your result has been saved on this device.')} }
-async function submitGuess(word){if(!word||!gameId||state.ended)return;try{$('submit').disabled=true;const data=await api('/api/game/'+gameId+'/guess',{method:'POST',body:JSON.stringify({word})});state=data;render();$('guess').value='';if(data.last_guess.solved.length){$('message').textContent='Solved '+data.last_guess.solved.join(', ')+(data.last_guess.bonus_awarded?' · earned '+data.last_guess.bonus_awarded+' bonus guess(es).':'!')}else $('message').textContent='Clues added. Keep going.'}catch(e){$('message').textContent=e.message}finally{$('submit').disabled=state?.ended??false;$('guess').focus()}}
-$('form').addEventListener('submit',e=>{e.preventDefault();const w=$('guess').value.trim().toUpperCase();if(!/^[A-Z]{5}$/.test(w)){$('message').textContent='Enter exactly five letters.';return}submitGuess(w)});
-$('guess').addEventListener('input',e=>e.target.value=e.target.value.replace(/[^a-z]/gi,'').slice(0,5).toUpperCase());
-$('keyboard').innerHTML=letters.split('').map(ch=>`<div class="key" data-key="${ch}">${ch}</div>`).join('')+`<div class="key" data-action="back">⌫</div><div class="key" data-action="enter" style="grid-column:span 2">ENTER</div>`;$('keyboard').addEventListener('click',e=>{const k=e.target.dataset.key,action=e.target.dataset.action;if(k&&$('guess').value.length<5)$('guess').value+=$('guess').value? k:k;if(action==='back')$('guess').value=$('guess').value.slice(0,-1);if(action==='enter')$('form').requestSubmit();$('guess').focus()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')$('guess').blur()});
-$('newGame').onclick=async()=>{if(state&&!state.ended&&!confirm('Start a new run? Your current run will remain in your history only on this device.'))return;try{await startGame()}catch(e){$('message').textContent=e.message}};
-$('howTo').onclick=()=>showModal('How to play','You get 10 guesses and can earn up to 8 bonus guesses by completing words. The first eight completed words award one guess each. Solve all ten rows and columns to win. Yellow = same row, red = same column, orange = both, white = elsewhere on the board, black = absent. Arrow counts account for repeated letters.');
-$('modalClose').onclick=()=>$('overlay').classList.remove('show');function showModal(title,text){$('modalTitle').textContent=title;$('modalText').textContent=text;$('overlay').classList.add('show')}
-init();
-</script></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1120">
+<meta name="description" content="Squardle: solve five across and five down words in one tangled 5×5 grid.">
+<title>Squardle · Freeplay</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/styles.css?v=7">
+<script src="/app.js?v=7" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="left">
+      <button class="icon-btn" id="btnHelp" type="button" aria-label="How to play">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.3-2.8 4.1"/><path d="M12 17.6h.01"/></svg>
+      </button>
+    </div>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="#1d8450"/><rect x="24" y="4" width="16" height="16" rx="4" fill="#f2c230"/><rect x="44" y="4" width="16" height="16" rx="4" fill="#c93d48"/><rect x="4" y="24" width="16" height="16" rx="4" fill="#ee8a2b"/><rect x="24" y="24" width="16" height="16" rx="4" fill="#8d9bff"/><rect x="44" y="24" width="16" height="16" rx="4" fill="#e9ecf6"/><rect x="4" y="44" width="16" height="16" rx="4" fill="#343a5c"/><rect x="24" y="44" width="16" height="16" rx="4" fill="#1d8450"/><rect x="44" y="44" width="16" height="16" rx="4" fill="#f2c230"/></svg>
+      <h1 aria-label="Squardle"><span class="sa">SQUA<svg class="smile" viewBox="0 0 60 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 3.5 Q28 15 54 4.5"/><path d="M48.5 2.2 L55 4.2 L51.2 9.4"/></svg></span>RDLE</h1>
+      <span class="tag">FREEPLAY</span>
+    </div>
+    <div class="right">
+      <button class="icon-btn" id="btnStats" type="button" aria-label="Statistics">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSettings" type="button" aria-label="Settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 14.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="toasts" id="toasts" aria-live="assertive"></div>
+  <div class="celebrate" id="celebrate" aria-hidden="true"></div>
+
+  <main class="layout">
+    <section class="play" aria-label="Game">
+      <div class="status" id="status">
+        <div class="stat guesses" id="statGuesses"><b id="guesses">–</b><span>Guesses left</span></div>
+        <div class="progress" id="progress" aria-hidden="true"></div>
+      </div>
+
+      <div class="board-wrap">
+        <div class="marks cols" id="markCols" aria-hidden="true"></div>
+        <div class="marks rows" id="markRows" aria-hidden="true"></div>
+        <div class="board" id="board" role="grid" aria-label="Squardle grid, 5 by 5"></div>
+        <div class="loading" id="loading"><div><div class="spinner"></div>Building your puzzle…</div></div>
+      </div>
+
+      <div class="toolbar">
+        <button class="pill-btn" id="btnNotes" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20z"/></svg>Notes
+        </button>
+        <button class="pill-btn" id="btnClearHl" type="button" hidden>Clear highlight ✕</button>
+        <button class="pill-btn" id="btnNew" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg>New puzzle
+        </button>
+      </div>
+
+      <div class="keyboard" id="keyboard" aria-label="On-screen keyboard"></div>
+    </section>
+
+    <aside class="side" aria-label="Clues and history">
+      <div class="card">
+        <h2>Colour key</h2>
+        <div class="legend">
+          <div><span class="sw green">A</span>Right letter, right square</div>
+          <div><span class="sw white">A</span>In the grid, not here</div>
+          <div><span class="sw yellow" data-arrows="1,0">A</span>In this row’s word</div>
+          <div><span class="sw red" data-arrows="0,1">A</span>In this column’s word</div>
+          <div><span class="sw orange" data-arrows="1,1">A</span>In both words</div>
+          <div><span class="sw black">A</span>Not in the grid</div>
+        </div>
+      </div>
+      <div class="card grow">
+        <h2>Guess history <span id="hcount"></span></h2>
+        <div class="history" id="history"><div class="empty">No guesses yet.</div></div>
+      </div>
+      <p class="fine">Tap a clue to fade it, again to hide it. Press and hold a clue to highlight that letter.</p>
+    </aside>
+  </main>
+</div>
+
+<div class="sr-only" id="announce" aria-live="polite"></div>
+
+<dialog id="dlgHelp" aria-labelledby="helpTitle"><div class="dlg">
+  <button class="icon-btn close" data-close type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <h2 id="helpTitle">How to play</h2>
+  <p class="sub">Solve all ten words: five across and five down.</p>
+  <ul>
+    <li>Every guess is a five-letter word. It goes into the <b>highlighted row</b> and the <b>highlighted column</b> at the same time.</li>
+    <li>Each square collects a clue tile for every letter placed in it. Your latest guess shows full size for a few seconds, then shrinks into small history tiles so the board is clear for your next guess. Only green squares stay full size.</li>
+    <li>You start with <b>10 guesses</b>. Solve a word and earn <b>+1 guess</b>, for your first 8 solved words.</li>
+    <li>Solved squares turn green and stay put. The row and column always share a number (row 2 with column 2, and so on); a pair is skipped only once both its row and column are solved.</li>
+  </ul>
+  <h3>Reading the tiles</h3>
+  <div class="example"><span class="sw green">S</span><span class="sw yellow" data-arrows="1,0">T</span><span class="sw red" data-arrows="0,1">A</span><span class="sw orange" data-arrows="1,1">R</span><span class="sw white">E</span><span class="sw black">Z</span></div>
+  <ul>
+    <li><b>Green</b> — right letter in the right square.</li>
+    <li><b>Yellow</b> — the letter is somewhere else in that square’s <b>row</b> word.</li>
+    <li><b>Red</b> — the letter is somewhere else in that square’s <b>column</b> word.</li>
+    <li><b>Orange</b> — it appears in both the row and the column word.</li>
+    <li><b>White</b> — it’s in the grid, but not in that row or column. <b>Black</b> — it’s not in the grid at all.</li>
+    <li>Arrows show the direction: <b>◀ ▶</b> on the sides = row, <b>▲ ▼</b> top and bottom = column.</li>
+  </ul>
+  <div class="example"><span class="sw yellow" data-arrows="2,0">E</span><span class="sw red" data-arrows="0,3">S</span><span class="sw orange" data-arrows="2,1">O</span></div>
+  <ul>
+    <li><b>More arrow pairs</b> mean more copies. Both the answer and your guess must contain the letter more than once; you get the smaller of the two counts.</li>
+  </ul>
+  <h3>Reading the keyboard</h3>
+  <div class="example keys-example"><span class="key">A</span><span class="key yellow">B</span><span class="key red">C</span><span class="key orange">D</span><span class="key white">E</span><span class="key gray">F</span><span class="key black">G</span></div>
+  <ul>
+    <li>Keys update after every guess for the <b>highlighted row and column</b>.</li>
+    <li><b>Purple</b> — not guessed yet. <b>White</b> — guessed, nothing more to say about this row/column.</li>
+    <li><b>Yellow / Red / Orange</b> — more copies of this letter are still needed in the row / column / both.</li>
+    <li><b>Dark grey</b> — can’t go anywhere else in either highlighted line. <b>Black</b> — not in the grid at all.</li>
+  </ul>
+  <h3>Handy tools</h3>
+  <ul>
+    <li><b>Tap a tile</b> to fade it, tap again to hide it, once more to restore.</li>
+    <li><b>Press and hold</b> a tile (or right-click) to highlight every tile with that letter. Tap a past guess to highlight its tiles.</li>
+    <li><b>Notes</b>: turn it on, tap a square, then type a letter to pencil it in. Type it again to mark it certain.</li>
+  </ul>
+  <div class="btn-row"><button class="btn" data-close type="button">Got it</button></div>
+</div></dialog>
+
+<dialog id="dlgStats" aria-labelledby="statsTitle"><div class="dlg">
+  <button class="icon-btn close" data-close type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <h2 id="statsTitle">Statistics</h2>
+  <p class="sub">Saved on this device.</p>
+  <div class="numbers" id="statNumbers"></div>
+  <div class="numbers" id="statNumbers2"></div>
+  <div class="btn-row"><button class="btn" data-close type="button" autofocus>Close</button></div>
+</div></dialog>
+
+<dialog id="dlgSettings" aria-labelledby="setTitle"><div class="dlg">
+  <button class="icon-btn close" data-close type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <h2 id="setTitle">Settings</h2>
+  <p class="sub">&nbsp;</p>
+  <label class="toggle"><span>Colour-blind mode<small>Safer colours plus a symbol on row, column and both-way tiles.</small></span>
+    <span class="switch"><input type="checkbox" id="optCb"><i></i></span></label>
+  <div class="toggle"><span>Reset tile marks<small>Restore every faded or hidden tile in this puzzle.</small></span>
+    <button class="btn secondary" id="btnResetMarks" type="button">Reset</button></div>
+  <div class="btn-row"><button class="btn" data-close type="button" autofocus>Done</button></div>
+</div></dialog>
+
+<dialog id="dlgResult" aria-labelledby="resTitle"><div class="dlg">
+  <div class="result-head"><div class="big" id="resEmoji" aria-hidden="true"></div><h2 id="resTitle"></h2><p class="sub" id="resSub"></p></div>
+  <div class="mini" id="resGrid" aria-label="Solution"></div>
+  <div class="btn-row"><button class="btn secondary" id="btnShare" type="button">Share</button><button class="btn" id="btnPlayAgain" type="button" autofocus>New puzzle</button></div>
+  <div class="btn-row"><button class="btn secondary" data-close type="button">View board</button></div>
+</div></dialog>
+
+<dialog id="dlgNew" aria-labelledby="newTitle"><div class="dlg">
+  <h2 id="newTitle">Start a new puzzle?</h2>
+  <p class="sub">Your current game isn’t finished. Starting a new puzzle replaces it.</p>
+  <div class="btn-row"><button class="btn secondary" data-close type="button" autofocus>Keep playing</button><button class="btn" id="btnConfirmNew" type="button">New puzzle</button></div>
+</div></dialog>
+
+<noscript>Squardle needs JavaScript to run.</noscript>
+</body>
+</html>

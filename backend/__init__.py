@@ -1,1 +1,1 @@
-"""Weekly Squardle backend package."""
+"""Freeplay Squardle backend."""

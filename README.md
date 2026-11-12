@@ -1,18 +1,17 @@
-# Weekly Squardle — production MVP scaffold
+# Squardle — Freeplay
 
-A server-authoritative implementation of the Weekly Squardle rules. The browser never receives the answer grid; guesses are validated and scored by FastAPI. SQLite persists game state, and the static frontend is served from the same origin.
+A server-authoritative, freeplay implementation of the 5×5 interlocking-word game. Every new game asks the backend to generate a fresh grid of five across and five down words (ten distinct words). The API never returns the solution until a game has ended.
 
-## Included
+## Features
 
-- Responsive browser client and on-screen keyboard
-- 5×5 board with 5 row words + 5 column words
-- 10 starting guesses and up to 8 bonus guesses
-- First eight completed words award one bonus guess each; the final two do not
-- Weekly cycling rule: if exactly one unsolved row/column has more than one unresolved square, the next guess is directed there
-- Duplicate-aware directional clue counts
-- Green squares persist; latest clue for each other square is shown
-- Server-side answer storage, accepted-word validation, resumable game IDs
-- Docker deployment and a basic health endpoint
+- 5×5 grid, 10 starting guesses, up to 8 bonus guesses (one per each of the first eight solved words)
+- Guess fills the highlighted row **and** column; the crossing square (always on the diagonal) gets one clue tile
+- The latest guess shows full size for 5 s (or until you start typing), then collapses into small history chips; only greens stay full size
+- Duplicate-aware arrow counts; row and column always share an index, cycling past a pair only once both its row and column are solved
+- Full clue history, tap-to-fade/hide tiles, long-press/right-click to highlight a letter, tap a past guess to highlight its tiles, full-square pencil notes
+- Colour-blind palette with symbols, reduced-motion support, keyboard + touch input, screen-reader announcements
+- Local stats and streaks, share-as-emoji-grid, answer reveal when a game is lost
+- Saved game in browser storage and SQLite (WAL); concurrent guesses are serialized per game
 
 ## Run locally
 
@@ -20,65 +19,43 @@ Requires Python 3.12+.
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\\Scripts\\activate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r backend/requirements.txt
 uvicorn backend.main:app --reload --port 8000
 ```
 
-Open http://localhost:8000. Health check: http://localhost:8000/api/health.
+Open http://localhost:8000.
 
-## Deploy with Docker
+## Word lists
 
-Build from the project root (the directory containing this Dockerfile):
+- `backend/answers.txt` — ~2,500 common words used to build puzzles (no names, brands or vulgar words).
+- `backend/words.txt` — ~14,900 accepted guesses.
 
-```bash
-docker build -t weekly-squardle .
-docker run -d --name weekly-squardle \\
-  -p 8000:8000 \\
-  -v squardle-data:/data \\
-  -e CORS_ORIGINS=https://your-game-domain.example \\
-  weekly-squardle
-```
-
-Put the service behind HTTPS using a managed reverse proxy/load balancer. Keep `/data` on a persistent volume and back it up. For multiple application replicas, replace SQLite with PostgreSQL before scaling horizontally. Add rate limiting at the edge for `/api/game/*/guess` and `/api/game`.
-
-## Publishing a weekly puzzle
-
-Edit `backend/boards.json` and add a board with a Sunday `week_starts` date:
-
-```json
-{
-  "2026-11-15": {
-    "title": "Weekly Squardle · Week of November 15",
-    "week_starts": "2026-11-15",
-    "rows": ["FIRST", "...", "...", "...", "..."]
-  }
-}
-```
-
-The five rows define the 25-square answer grid. The five vertical words are derived from those letters. Before publishing, verify all ten words are accepted five-letter English words and are distinct. The included board for 2026-11-08 is a demonstration board only. A real release should be editorially curated and play-tested; do not reuse the demonstration puzzle as a live commercial weekly challenge.
-
-The API validates each published board at game creation/guess time. Invalid rows or columns fail closed rather than silently publishing a broken puzzle.
+Rebuild both with `pip install wordfreq && python tools/build_wordlists.py <five-letter-list.txt>`. Review the licence of whichever source list you use before commercial redistribution.
 
 ## API
 
 - `GET /api/health`
-- `GET /api/weekly` — public metadata only, no answers
-- `POST /api/game` — create a game
+- `GET /api/weekly` — compatibility metadata route (`mode: freeplay`)
+- `POST /api/game` — generate a puzzle and create a game (rate-limited per IP)
 - `GET /api/game/{game_id}` — resume a game
 - `POST /api/game/{game_id}/guess` with `{"word":"CRANE"}`
+- `POST /api/test-game` — **local QA only**, returns 404 unless `SQUARDLE_TEST_MODE=1`; always deals the fixed test board. Open `http://localhost:8000/?test` (or run `make test-game`).
 
-The game UUID is a bearer capability for that game. Do not expose it in public URLs or analytics. Current MVP stores games without user accounts; add identity and abuse controls if cross-device sync, leaderboards, or prizes are required.
+## Configuration
 
-## Release gates before public launch
+See `.env.example`: `DATABASE_PATH`, `CORS_ORIGINS` (only for a split frontend/API), `GAME_TTL_DAYS`, `CREATE_LIMIT_PER_MIN`.
 
-1. Have a human editor approve a rolling bank of weekly answer grids and a separate answer/guess vocabulary policy.
-2. Run the rule test suite and add golden tests against official sample positions, especially duplicate-letter arrow counts and crossing squares.
-3. Confirm the intended weekly reset timezone and set `WEEKLY_TIMEZONE` accordingly (default: UTC). The service fails closed if the current Sunday board is missing or invalid.
-4. Move to PostgreSQL if deploying multiple replicas; add migrations, automated backups, rate limits, monitoring, error reporting, and abuse protection.
-5. Add accessibility review (keyboard navigation, screen-reader labels, non-colour clue symbols) and mobile device testing.
-6. Review trademark/branding and obtain permission before presenting this as an official FubarGames product. This implementation is independent and unaffiliated.
+## Production notes
 
-## Word list
+- Strict CSP (no inline scripts/styles), `nosniff`, frame denial, `no-store` on the API, gzip.
+- Run **one** instance with a persistent disk (`render.yaml` mounts `/var/data`; free-tier disks are ephemeral). For multiple replicas, move storage to PostgreSQL and the rate limiter to a shared store.
+- Behind a proxy, run uvicorn with `--proxy-headers` so rate limiting sees client IPs (already set in `render.yaml` and the Dockerfile).
+- Games untouched for `GAME_TTL_DAYS` are purged at startup.
 
-`backend/words.txt` is a bundled 5-letter CMU Pronouncing Dictionary-derived guess list. It is intentionally broad and can include uncommon words; the weekly answer grid should be curated separately. Review the CMU dictionary license and attribution requirements before redistribution in a commercial deployment.
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
