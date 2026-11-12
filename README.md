@@ -40,7 +40,7 @@ Rebuild both with `pip install wordfreq && python tools/build_wordlists.py <five
 - `POST /api/game` — generate a puzzle and create a game (rate-limited per IP)
 - `GET /api/game/{game_id}` — resume a game
 - `POST /api/game/{game_id}/guess` with `{"word":"CRANE"}`
-- `POST /api/test-game` — **local QA only**, returns 404 unless `SQUARDLE_TEST_MODE=1`; always deals the fixed test board. Open `http://localhost:8000/?test` (or run `make test-game`).
+- `POST /api/test-game` — QA board used by `/?test` (locally and on Render); always deals the same fixed puzzle and never affects stats. On by default; set `SQUARDLE_TEST_MODE=0` to disable.
 
 ## Configuration
 

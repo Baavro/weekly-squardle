@@ -30,9 +30,9 @@ ANSWERS_PATH = Path(os.getenv("ANSWERS_PATH", ROOT / "answers.txt"))
 START_GUESSES, BONUS_LIMIT = 10, 8
 GAME_TTL_DAYS = int(os.getenv("GAME_TTL_DAYS", "45"))
 CREATE_LIMIT_PER_MIN = int(os.getenv("CREATE_LIMIT_PER_MIN", "20"))
-# Local QA only: enables POST /api/test-game, which always deals the fixed TEST_BOARD below.
-# Never set this on Render.
-TEST_MODE = os.getenv("SQUARDLE_TEST_MODE", "").lower() in ("1", "true", "yes")
+# QA board: POST /api/test-game (used by /?test) always deals the fixed TEST_BOARD below.
+# On by default so it works on Render too; set SQUARDLE_TEST_MODE=0 to switch it off.
+TEST_MODE = os.getenv("SQUARDLE_TEST_MODE", "1").lower() not in ("0", "false", "no", "off")
 TEST_BOARD = ["plugs", "linen", "amino", "nitro", "steep"]  # columns: plans limit unite genre snoop
 
 
@@ -348,9 +348,10 @@ def _create_with_rows(rows: list[str]):
 
 
 @app.post("/api/test-game")
-def create_test_game():
+def create_test_game(request: Request):
     if not TEST_MODE:
         raise HTTPException(404, "Not found.")
+    _rate_limit_create(request)
     validate_board(TEST_BOARD)
     return _create_with_rows(list(TEST_BOARD))
 

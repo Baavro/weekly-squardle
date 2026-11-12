@@ -122,8 +122,12 @@ def test_diagonal_crossing_gets_one_tile():
                 assert len([k for k in state["cells"][rr][cc] if k["guess_id"] == gid]) <= 1
 
 
-def test_test_game_endpoint_disabled_by_default():
+def test_test_game_endpoint_deals_fixed_board_and_can_be_disabled(monkeypatch):
+    import backend.main as m
     client = TestClient(app)
+    res = client.post('/api/test-game')
+    assert res.status_code == 200 and res.json()['state']['guesses_left'] == 10
+    monkeypatch.setattr(m, 'TEST_MODE', False)
     assert client.post('/api/test-game').status_code == 404
 
 

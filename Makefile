@@ -6,4 +6,4 @@ run:
 test:
 	python -m pytest -q
 test-game:
-	SQUARDLE_TEST_MODE=1 uvicorn backend.main:app --reload --port 8000
+	uvicorn backend.main:app --reload --port 8000  # then open http://localhost:8000/?test
