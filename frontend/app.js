@@ -44,6 +44,8 @@
   const S = {
     gameId: null, state: null, draft: '', busy: false, loading: true,
     marks: {}, notes: {}, notesMode: false, sel: null,
+    // quickNote: notes mode opened by tapping a square; it closes itself after one letter.
+    quickNote: false,
     hlGuess: null, hlLetter: null,
     fresh: null, typedIdx: -1, resultShownFor: null, suppressClick: false,
     // Latest guess shown as full-size tiles for EXPAND_MS, then collapsed into chips.
@@ -179,12 +181,16 @@
     ROWS.forEach((letters, idx) => {
       const row = el('div', 'krow');
       if (idx === 1) row.appendChild(el('span', 'key spacer'));
-      if (idx === 2) row.appendChild(key('key wide', 'ENTER', 'Enter', 'Enter'));
+      if (idx === 2) row.appendChild(key('key wide enter-inline', 'ENTER', 'Enter', 'Enter'));
       for (const ch of letters) row.appendChild(key('key', ch, ch));
       if (idx === 2) row.appendChild(key('key wide', '⌫', 'Backspace', 'Delete'));
       if (idx === 1) row.appendChild(el('span', 'key spacer'));
       kb.appendChild(row);
     });
+    // Phones: a full-width Enter bar (like a space bar) replaces the small inline Enter key.
+    const big = el('div', 'krow enter-row');
+    big.appendChild(key('key enter-big', 'ENTER', 'Enter', 'Enter'));
+    kb.appendChild(big);
   }
 
   function tileFor(item) {
@@ -432,7 +438,7 @@
 
   // ── Game flow ────────────────────────────────────────────
   function adopt(id, state) {
-    S.gameId = id; S.state = state; S.draft = ''; S.sel = null; S.fresh = null;
+    S.gameId = id; S.state = state; S.draft = ''; S.sel = null; S.fresh = null; S.quickNote = false;
     S.hlGuess = S.hlLetter = null; S.typedIdx = -1;
     clearTimeout(S.expTimer); S.expTimer = null; S.expanded = null;
     S.marks = store.json(KEYS.marks(id), {});
@@ -549,13 +555,17 @@
   }
   function deleteLetter() {
     if (!live() || S.busy || S.loading) return;
-    if (S.notesMode) { clearNote(); return; }
+    if (S.notesMode) { clearNote(); if (S.quickNote) endQuickNote(); return; }
     if (!S.draft) return;
     S.draft = S.draft.slice(0, -1); S.typedIdx = -1;
     renderBoard();
   }
   function pressKey(k) {
-    if (k === 'Enter') { if (S.notesMode) { toast('Turn Notes off to submit a guess.'); return; } submit(); }
+    if (k === 'Enter') {
+      if (S.quickNote) endQuickNote();
+      if (S.notesMode) { toast('Turn Notes off to submit a guess.'); return; }
+      submit();
+    }
     else if (k === 'Backspace') deleteLetter();
     else addLetter(k);
   }
@@ -570,7 +580,8 @@
     if (!cur || cur.letter !== ch) S.notes[key] = { letter: ch, certain: false };
     else if (!cur.certain) cur.certain = true;
     else delete S.notes[key];
-    persistNotes(); renderBoard();
+    persistNotes();
+    if (S.quickNote) endQuickNote(); else renderBoard();
   }
   function clearNote() {
     if (!S.sel) return;
@@ -578,7 +589,20 @@
     persistNotes(); renderBoard();
   }
 
+  // Tap a square (Notes off) -> quick note for that square; the next letter fills it and
+  // notes switch off again. The Notes button still gives the sticky mode.
+  function startQuickNote(r, c) {
+    collapseExpanded();
+    S.quickNote = true; S.notesMode = true; S.sel = [r, c];
+    renderToolbar(); renderBoard();
+  }
+  function endQuickNote() {
+    S.quickNote = false; S.notesMode = false; S.sel = null;
+    renderToolbar(); renderBoard();
+  }
+
   function toggleNotes() {
+    if (S.quickNote) { S.quickNote = false; renderToolbar(); toast('Notes on: tap a square, then type a letter.', 2600); return; } // promote to sticky
     S.notesMode = !S.notesMode;
     if (!S.notesMode) S.sel = null;
     renderToolbar(); renderBoard();
@@ -704,7 +728,7 @@
         if (a && a.tagName === 'BUTTON' && a.matches(':focus-visible')) return;
         e.preventDefault(); pressKey('Enter');
       } else if (e.key === 'Backspace') { e.preventDefault(); pressKey('Backspace'); }
-      else if (e.key === 'Escape') { clearHighlight(); if (S.sel) { S.sel = null; renderBoard(); } }
+      else if (e.key === 'Escape') { clearHighlight(); if (S.quickNote) endQuickNote(); else if (S.sel) { S.sel = null; renderBoard(); } }
       else if (/^[a-zA-Z]$/.test(e.key)) {
         e.preventDefault(); pressKey(e.key.toUpperCase());
       }
@@ -729,15 +753,26 @@
       if (S.suppressClick) { S.suppressClick = false; return; }
       const cell = e.target.closest('.cell');
       if (!cell || !S.state) return;
+      const r = +cell.dataset.r, c = +cell.dataset.c;
+      const same = S.sel && S.sel[0] === r && S.sel[1] === c;
+      if (S.quickNote) {
+        // Tap the same square again to cancel; tap another unsolved square to move the note there.
+        if (same || isGreen(S.state.cells[r][c])) endQuickNote();
+        else { S.sel = [r, c]; renderBoard(); }
+        return;
+      }
       if (S.notesMode) {
-        const r = +cell.dataset.r, c = +cell.dataset.c;
         if (isGreen(S.state.cells[r][c])) { toast('That square is already solved.'); return; }
-        S.sel = S.sel && S.sel[0] === r && S.sel[1] === c ? null : [r, c];
+        S.sel = same ? null : [r, c];
         renderBoard();
         return;
       }
       const tile = e.target.closest('.tile[data-tid]');
-      if (!tile) return;
+      if (!tile) {
+        // Tapping a square (not one of its clue chips) opens a one-letter note for it.
+        if (live() && !S.busy && !isGreen(S.state.cells[r][c])) startQuickNote(r, c);
+        return;
+      }
       const id = tile.dataset.tid;
       const next = ((S.marks[id] || 0) + 1) % 3;
       if (next === 0) delete S.marks[id]; else S.marks[id] = next;

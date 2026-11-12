@@ -245,6 +245,12 @@ button, .key, .tile { touch-action: manipulation; }
 .key:disabled { opacity: .5; cursor: default; }
 .key.enter-busy { opacity: .6; }
 @media (max-width: 400px) { .key { height: 46px; font-size: 14px; } .krow { gap: 4px; } }
+.krow.enter-row { display: none; }
+.key.enter-big { flex: 1 1 auto; height: 52px; background: var(--accent); color: var(--accent-ink); font-size: 15px; letter-spacing: .14em; }
+@media (max-width: 600px) {
+  .krow.enter-row { display: flex; padding: 0 6%; }
+  .key.enter-inline { display: none; }
+}
 
 /* ── Side panel ───────────────────────────────────────── */
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 14px 12px; }
@@ -359,3 +365,34 @@ noscript { display: block; padding: 40px 20px; text-align: center; color: var(--
 @keyframes bp-out { to { transform: translateY(-20px) scale(.9); opacity: 0; } }
 @keyframes bp-spin { 0%, 100% { transform: rotate(0) scale(1); } 50% { transform: rotate(180deg) scale(1.25); } }
 @keyframes bp-burst { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-95px) scale(.4); } }
+
+/* Small phones: keep the header inside the screen (no sideways scroll). */
+@media (max-width: 440px) {
+  .brand { gap: 7px; }
+  .brand .tag { display: none; }
+  .brand h1 { font-size: 18px; letter-spacing: .12em; }
+  .logo { width: 24px; height: 24px; }
+  .icon-btn { width: 36px; }
+}
+
+/* ── Phone layout: the board and keyboard are the focus ── */
+@media (max-width: 600px) {
+  .app { padding-left: 8px; padding-right: 8px; }
+  .layout { padding-top: 8px; }
+  .status { margin-bottom: 6px; gap: 5px; }
+  .stat.guesses { padding: 2px 12px 3px; }
+  .stat.guesses b { font-size: 20px; }
+  .progress { height: 4px; }
+  /* Board as wide as the screen allows (thin markers, mirrored spacer keeps it centred),
+     capped by height so the keyboard always fits below it. */
+  .board-wrap {
+    --board: clamp(250px, min(100vw - 40px, 100dvh - 348px), 520px);
+    --gap: 4px;
+    grid-template-columns: 10px var(--board) 10px; grid-template-rows: 10px var(--board);
+    column-gap: 2px; row-gap: 2px;
+  }
+  .marks.cols i.on::after { border-width: 5px; top: 0; }
+  .marks.rows i.on::after { border-width: 5px; left: 0; }
+  .keyboard { order: 3; margin-top: 12px; }
+  .toolbar { order: 4; margin: 14px 0 0; }
+}
