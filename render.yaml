@@ -1,0 +1,16 @@
+
+services:
+  - type: web
+    name: squardle
+    runtime: python
+    plan: free
+    region: singapore
+
+    buildCommand: pip install --upgrade pip && pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.14.8
+
+    healthCheckPath: /api/health
